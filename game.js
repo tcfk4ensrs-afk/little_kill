@@ -15,18 +15,15 @@ class Game {
             console.log("リトルエンジン号 システム起動中...");
             await this.loadScenario('./scenarios/case1.json');
             
-            // UIの初期反映
-            document.getElementById('case-title').innerText = this.scenario.case.title;
-            document.getElementById('case-outline').innerText = this.scenario.case.outline;
-            
             this.loadState();
             this.renderCharacterList();
             this.updateAttributesUI();
             
             console.log("準備完了。");
         } catch (e) {
-            console.error("初期化エラー:", e);
-            alert("データの読み込みに失敗しました。構成を確認してください。");
+            console.error("初期化詳細エラー:", e);
+            // エラーの内容を具体的に表示
+            alert(`エラーが発生しました:\n内容: ${e.message}\n※ブラウザのF12キーを押して'Console'を確認してください。`);
         }
     }
 
