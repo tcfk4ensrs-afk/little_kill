@@ -15,7 +15,7 @@ class Game {
         try {
             console.log("Game initialising...");
             // シナリオのロード
-            await this.loadScenario('./scenarios/case1.json');
+            await this.loadScenario('scenarios/case1.json');
             
             this.loadState();
             this.initTimer();
