@@ -1,17 +1,17 @@
 :root {
-    --bg-color: #1a120b;
-    --accent-color: #d4a373;
-    --text-color: #fefae0;
-    --card-bg: #2c1e12;
-    --chat-user-bg: #5c4033;
-    --chat-ai-bg: #3d2b1a;
-    --border-color: #432e1d;
+    --bg-color: #1a1a1a;
+    --text-color: #e0e0e0;
+    --accent-color: #d4af37; /* 列車や万年筆をイメージしたゴールド */
+    --card-bg: #2d2d2d;
+    --chat-user-bg: #3c5a5d; /* 落ち着いたネイビーグレー */
+    --chat-ai-bg: #333333;
+    --danger-color: #d32f2f; /* 犯人指名ボタン用 */
 }
 
 body {
     margin: 0;
-    font-family: 'Georgia', 'serif', 'Hiragino Mincho ProN', 'MS P明朝';
-    background-color: #0d0907;
+    font-family: 'Times New Roman', serif; /* 重厚な雰囲気 */
+    background-color: var(--bg-color);
     color: var(--text-color);
     display: flex;
     justify-content: center;
@@ -21,110 +21,152 @@ body {
 
 #app {
     width: 100%;
-    max-width: 800px;
+    max-width: 600px;
     height: 100%;
     display: flex;
     flex-direction: column;
-    background-color: var(--bg-color);
+    background-color: #0d0d0d;
     position: relative;
-    box-shadow: 0 0 50px rgba(0,0,0,0.8);
-    border-left: 2px solid var(--accent-color);
-    border-right: 2px solid var(--accent-color);
+    box-shadow: 0 0 30px rgba(0,0,0,0.7);
+    border-left: 1px solid #333;
+    border-right: 1px solid #333;
 }
 
 header {
-    background-color: #110c08;
-    padding: 15px 20px;
+    background-color: #1a1a1a;
+    padding: 20px 15px;
     text-align: center;
     border-bottom: 2px solid var(--accent-color);
 }
 
-.content {
+h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+    color: var(--accent-color);
+}
+
+p#case-outline {
+    font-size: 0.85rem;
+    color: #999;
+    margin: 8px 0 0 0;
+    line-height: 1.4;
+}
+
+/* Main Menu */
+#main-menu {
     flex: 1;
     overflow-y: auto;
     padding: 20px;
-    background-image: url('https://www.transparenttextures.com/patterns/dark-leather.png');
+    background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); /* 質感の追加 */
 }
 
 .section-title {
-    font-size: 0.95rem;
-    color: var(--accent-color);
-    border-bottom: 1px solid var(--accent-color);
     margin: 25px 0 15px 0;
-    padding-bottom: 5px;
-    text-transform: uppercase;
-}
-
-.train-map {
-    width: 100%;
-    height: auto;
-    border: 2px solid var(--accent-color);
-    border-radius: 5px;
-    margin-bottom: 20px;
-}
-
-#time-clue-container {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 15px;
-}
-
-.time-clue-btn {
-    background: #1a120b;
-    color: #555;
-    border: 1px solid #332211;
-    padding: 12px;
-    text-align: left;
-    cursor: not-allowed;
-}
-
-.time-clue-btn.unlocked {
+    font-size: 1.1rem;
+    border-left: 4px solid var(--accent-color);
+    padding-left: 12px;
     color: var(--accent-color);
-    border-color: var(--accent-color);
-    background: #2c1e12;
-    cursor: pointer;
 }
 
 #character-list {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
 }
 
 .character-card {
     background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    padding: 12px 8px;
-    text-align: center;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 20px 10px;
     cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
 }
 
-.character-card:hover { border-color: var(--accent-color); }
+.character-card:hover {
+    transform: translateY(-3px);
+    background-color: #3d3d3d;
+    border-color: var(--accent-color);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+}
 
-.char-role { font-size: 0.7rem; color: var(--accent-color); display: block; }
-.char-name { font-size: 0.85rem; font-weight: bold; }
+.char-icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
+}
 
+.char-name {
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.char-role {
+    font-size: 0.75rem;
+    color: #bbb;
+}
+
+/* Evidence List */
 #evidence-list {
-    background: rgba(0,0,0,0.2);
-    border: 1px inset var(--border-color);
-    border-radius: 5px;
+    background-color: #151515;
+    border-radius: 4px;
+    border: 1px solid #333;
 }
 
 .evidence-item {
-    padding: 10px;
-    border-bottom: 1px solid var(--border-color);
-    font-size: 0.9rem;
+    padding: 12px;
+    border-bottom: 1px solid #333;
+    animation: fadeIn 0.5s ease;
 }
 
-#interrogation-room { height: 100%; display: flex; flex-direction: column; }
+.evidence-item:last-child {
+    border-bottom: none;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Interrogation Room */
+#interrogation-room {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+    background-color: #121212;
+}
+
 #room-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     padding: 15px;
-    background: #110c08;
-    border-bottom: 2px solid var(--accent-color);
+    background-color: #1a1a1a;
+    border-bottom: 1px solid var(--accent-color);
+}
+
+#back-btn {
+    background: none;
+    border: 1px solid #444;
+    color: var(--accent-color);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 5px 15px;
+    border-radius: 4px;
+}
+
+#back-btn:hover {
+    background-color: #333;
+}
+
+#target-name {
+    flex: 1;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: var(--accent-color);
 }
 
 #chat-log {
@@ -133,16 +175,106 @@ header {
     padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    background: #0d0907;
+    gap: 15px;
+    background-image: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
 }
 
-.message { max-width: 80%; padding: 10px 15px; border-radius: 8px; }
-.message.user { align-self: flex-end; background: var(--chat-user-bg); color: white; }
-.message.model { align-self: flex-start; background: var(--chat-ai-bg); border: 1px solid var(--border-color); color: var(--text-color); }
+.message {
+    max-width: 85%;
+    padding: 12px 18px;
+    border-radius: 8px;
+    line-height: 1.6;
+    font-size: 0.95rem;
+    position: relative;
+    word-wrap: break-word;
+}
 
-#input-area { display: flex; padding: 15px; background: #1a120b; border-top: 2px solid var(--accent-color); gap: 10px; }
-#chat-input { flex: 1; background: #0d0907; border: 1px solid var(--border-color); color: var(--text-color); padding: 10px; }
-#send-btn { background: var(--accent-color); border: none; padding: 0 20px; font-weight: bold; cursor: pointer; }
+.message.user {
+    align-self: flex-end;
+    background-color: var(--chat-user-bg);
+    color: #fff;
+    border-bottom-right-radius: 2px;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+}
 
-@media (max-width: 600px) { #character-list { grid-template-columns: repeat(2, 1fr); } }
+.message.model {
+    align-self: flex-start;
+    background-color: var(--chat-ai-bg);
+    color: var(--text-color);
+    border-bottom-left-radius: 2px;
+    border-left: 3px solid var(--accent-color);
+    box-shadow: -2px 2px 10px rgba(0,0,0,0.3);
+}
+
+/* Input Area */
+#input-area {
+    display: flex;
+    padding: 15px;
+    background-color: #1a1a1a;
+    gap: 12px;
+    border-top: 1px solid #333;
+}
+
+#chat-input {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 25px;
+    border: 1px solid #444;
+    background-color: #2a2a2a;
+    color: white;
+    outline: none;
+    font-size: 0.9rem;
+}
+
+#chat-input:focus {
+    border-color: var(--accent-color);
+}
+
+#send-btn {
+    background-color: var(--accent-color);
+    color: #000;
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+#send-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Buttons in Main Menu */
+button#accuse-btn {
+    transition: background 0.3s;
+}
+
+button#accuse-btn:hover {
+    background-color: #b71c1c !important;
+}
+
+button#reset-btn:hover {
+    background-color: #777 !important;
+}
+
+/* Scrollbar Style */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #121212;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #444;
+}
