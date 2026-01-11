@@ -58,7 +58,7 @@
       "description": "メンテナンスクローゼットに落ちていた配管部品。水道管破裂の直接的な原因となった証拠品。",
       "unlock_condition": "reveal_pipe"
     }
-  ],
+  ]
   "time_clues": [
     {
       "id": "time_clue_1",
