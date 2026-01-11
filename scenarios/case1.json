@@ -17,48 +17,48 @@
     "scenarios/characters/VN.json"
   ],
 
-  "evidences": [
+ "evidences": [
     {
       "id": "bloody_frock",
       "name": "穴の開いた麻布の服",
-      "description": "農民(PS)が着ている服。胸のあたりに血とインクで汚れた鋭い穴が開いている。農民は生きているのに、なぜ服に穴があるのか？",
+      "description": "農民(PS)が着ている服。胸のあたりに血とインクの跡がある鋭い穴。農民は生きているのに、なぜ服に穴があるのか？",
       "unlock_condition": "start"
     },
     {
       "id": "golden_pen",
       "name": "黄金の万年筆",
-      "description": "農民(PS)のポケットから発見された、ビジネスマン(BM)所有の万年筆。先端が鋭く研がれており、血が付着している。",
-      "unlock_condition": "search_peasant"
+      "description": "農民(PS)のポケットから発見されたBM所有の万年筆。先端が鋭く研がれ、血が付着している。",
+      "unlock_condition": "reveal_pen"
     },
     {
       "id": "black_rope",
       "name": "ゴムキャップの付いたロープ",
-      "description": "喫煙車に残されていたロープ。両端が黒いゴムで覆われている。マジシャンがVNを縛る際に使用したものだ。",
-      "unlock_condition": "start"
+      "description": "喫煙車に残されていたロープ。端が黒いゴムで覆われている。マジシャンがVNを縛る際に使用した特注品だ。",
+      "unlock_condition": "reveal_rope"
     },
     {
       "id": "pregnancy_test",
       "name": "陽性の妊娠検査用紙",
-      "description": "テニススター(TS)が妊娠していることを示す結果。医者(DC)との不倫の証拠であり、バーテンダーが恐喝のネタにしていたもの。",
-      "unlock_condition": "talk_dc_secret"
+      "description": "医者の部屋で見つかった、テニススターが妊娠しているという決定的な証拠。",
+      "unlock_condition": "reveal_pregnancy"
     },
     {
       "id": "medicine_bottle",
       "name": "中絶薬の小瓶",
-      "description": "中身が空になった小瓶。医者から車掌、ビジネスマン、ヴァイオリニストへと、多くの人物の手に渡り歩いた不吉な薬。",
-      "unlock_condition": "investigate_medicine"
+      "description": "中身が空になった小瓶。多くの人物の手に渡り歩き、バーテンダーへの殺意を助長させた不吉な品。",
+      "unlock_condition": "reveal_medicine"
     },
     {
       "id": "stolen_cash",
       "name": "600ポンドの札束",
-      "description": "医者(DC)が持っている多額の現金。バーテンダーから恐喝し返して奪い取ったもの。",
-      "unlock_condition": "talk_dc_money"
+      "description": "医者(DC)が隠し持っていた大金。バーテンダーを恐喝し、口封じに奪ったもの。",
+      "unlock_condition": "reveal_cash"
     },
     {
       "id": "broken_iron_pipe",
       "name": "ひしゃげた鉄パイプ",
-      "description": "メンテナンスクローゼットの床に落ちていた配管用の部品。水道管の破裂はこの衝撃によるもののようだ。",
-      "unlock_condition": "search_closet"
+      "description": "メンテナンスクローゼットに落ちていた配管部品。水道管破裂の直接的な原因となった証拠品。",
+      "unlock_condition": "reveal_pipe"
     }
   ]
 }
