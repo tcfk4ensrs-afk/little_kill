@@ -4,58 +4,59 @@ class Game {
     constructor() {
         this.scenario = null;
         this.currentCharacterId = null;
-        this.state = {
-            history: {},
-            flags: {},
-            startTime: null
-        };
+        this.state = { history: {}, flags: {}, startTime: null };
     }
 
     async init() {
         try {
-            console.log("Game initialising...");
-            // シナリオのロード
-            await this.loadScenario('scenarios/case1.json');
+            console.log("Loading scenario...");
+            await this.loadScenario('./scenarios/case1.json');
             
             this.loadState();
             this.initTimer();
-            
-            // 各種リストの描画
+
+            // 1. 容疑者リストの表示
             this.renderCharacterList();
+            // 2. 証拠の表示
             this.updateAttributesUI();
+            // 3. 手がかりボタンの表示
             this.renderTimeClues();
-            
-            // 基本情報の表示
+            // 4 & 5. 犯人・リセットボタンの表示
+            this.createMenuButtons();
+
             document.getElementById('case-title').innerText = this.scenario.case.title;
             document.getElementById('case-outline').innerText = this.scenario.case.outline;
 
-            // ボタン類の生成
-            this.createMenuButtons();
-
-            // 1秒ごとにタイマーを更新
             setInterval(() => this.updateClueTimers(), 1000);
-
             console.log("Game ready.");
         } catch (e) {
-            console.error("Critical Init Error:", e);
-            alert(`初期化エラー: ${e.message}`);
+            console.error("Init Error:", e);
+            alert(`初期化に失敗しました。JSONの構文やファイルパスを確認してください。\nError: ${e.message}`);
         }
     }
 
     async loadScenario(path) {
         const res = await fetch(path);
-        if (!res.ok) throw new Error(`${path} が見つかりません。`);
+        if (!res.ok) throw new Error(`${path} not found`);
         this.scenario = await res.json();
+
+        // 容疑者データの個別ロード
+        if (this.scenario.characters && typeof this.scenario.characters[0] === 'string') {
+            const characterDataArray = await Promise.all(
+                this.scenario.characters.map(async (charPath) => {
+                    const charRes = await fetch(charPath);
+                    if (!charRes.ok) throw new Error(`Character file not found: ${charPath}`);
+                    return await charRes.json();
+                })
+            );
+            this.scenario.characters = characterDataArray;
+        }
     }
 
     initTimer() {
         const savedTime = localStorage.getItem('little_engine_start_time');
-        if (savedTime) {
-            this.state.startTime = parseInt(savedTime);
-        } else {
-            this.state.startTime = Date.now();
-            localStorage.setItem('little_engine_start_time', this.state.startTime);
-        }
+        this.state.startTime = savedTime ? parseInt(savedTime) : Date.now();
+        if (!savedTime) localStorage.setItem('little_engine_start_time', this.state.startTime);
     }
 
     renderCharacterList() {
@@ -97,7 +98,6 @@ class Game {
             btn.onclick = () => this.showTimeClue(index);
             container.appendChild(btn);
         });
-        this.updateClueTimers();
     }
 
     updateClueTimers() {
@@ -128,7 +128,7 @@ class Game {
 
     createMenuButtons() {
         const menuContent = document.querySelector('#main-menu .content');
-        if (document.querySelector('.accuse-btn-main')) return; // 重複防止
+        if (document.querySelector('.accuse-btn-main')) return;
 
         const accuseBtn = document.createElement('button');
         accuseBtn.innerText = '🚨 犯人を指名する';
@@ -144,6 +144,15 @@ class Game {
         menuContent.appendChild(resetBtn);
     }
 
+    startAccusation() {
+        const char = this.scenario.characters.find(c => c.id === this.currentCharacterId);
+        if (!char) return alert("尋問相手を選んでから指名してください。");
+        if (confirm(`${char.name} を指名しますか？`)) {
+            if (char.id === this.scenario.case.culprit) alert(`正解！\n\n${this.scenario.case.truth}`);
+            else alert("不正解！ 真犯人は別にいます。");
+        }
+    }
+
     enterInterrogation(charId) {
         this.currentCharacterId = charId;
         const char = this.scenario.characters.find(c => c.id === charId);
@@ -155,34 +164,6 @@ class Game {
         (this.state.history[charId] || []).forEach(msg => this.appendMessageToUI(msg.role, msg.text));
     }
 
-    async sendMessage() {
-        const input = document.getElementById('chat-input');
-        const text = input.value.trim();
-        if (!text || !this.currentCharacterId) return;
-        this.addMessage('user', text);
-        input.value = '';
-        const char = this.scenario.characters.find(c => c.id === this.currentCharacterId);
-        try {
-            let res = await sendToAI(char.system_prompt, text, this.state.history[this.currentCharacterId] || []);
-            const match = res.match(/\[UNLOCK:(\w+)\]/);
-            if (match) {
-                this.state.flags[match[1]] = true;
-                this.updateAttributesUI();
-                res = res.replace(/\[UNLOCK:(\w+)\]/g, '').trim();
-            }
-            this.addMessage('model', res);
-            this.saveState();
-        } catch (e) {
-            this.addMessage('model', "通信エラーが発生しました。");
-        }
-    }
-
-    addMessage(role, text) {
-        if (!this.state.history[this.currentCharacterId]) this.state.history[this.currentCharacterId] = [];
-        this.state.history[this.currentCharacterId].push({ role, text });
-        this.appendMessageToUI(role, text);
-    }
-
     appendMessageToUI(role, text) {
         const log = document.getElementById('chat-log');
         const div = document.createElement('div');
@@ -192,35 +173,17 @@ class Game {
         log.scrollTop = log.scrollHeight;
     }
 
-    startAccusation() {
-        const char = this.scenario.characters.find(c => c.id === this.currentCharacterId);
-        if (!char) return alert("相手を選んでから指名してください。");
-        if (confirm(`${char.name} を指名しますか？`)) {
-            if (char.id === this.scenario.case.culprit) alert(`正解！\n\n${this.scenario.case.truth}`);
-            else alert("不正解！ 真犯人は別にいます。");
-        }
-    }
-
-    saveState() { localStorage.setItem('little_engine_save', JSON.stringify(this.state)); }
+    saveState() { localStorage.setItem('little_engine_save', JSON.stringify({ history: this.state.history, flags: this.state.flags })); }
     loadState() {
         const saved = localStorage.getItem('little_engine_save');
-        if (saved) Object.assign(this.state, JSON.parse(saved));
-    }
-    resetGame() {
-        if (confirm("リセットしますか？")) {
-            localStorage.clear();
-            location.reload();
+        if (saved) {
+            const data = JSON.parse(saved);
+            this.state.history = data.history || {};
+            this.state.flags = data.flags || {};
         }
     }
+    resetGame() { if (confirm("リセットしますか？")) { localStorage.clear(); location.reload(); } }
 }
 
 const game = new Game();
-document.addEventListener('DOMContentLoaded', () => {
-    game.init();
-    document.getElementById('send-btn').onclick = () => game.sendMessage();
-    document.getElementById('chat-input').onkeypress = (e) => { if (e.key === 'Enter') game.sendMessage(); };
-    document.getElementById('back-btn').onclick = () => {
-        document.getElementById('interrogation-room').style.display = 'none';
-        document.getElementById('main-menu').style.display = 'block';
-    };
-});
+document.addEventListener('DOMContentLoaded', () => game.init());
