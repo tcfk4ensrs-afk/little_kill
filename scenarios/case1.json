@@ -7,14 +7,14 @@
   },
 
   "characters": [
-    "scenarios/characters/BM.json",
-    "scenarios/characters/CD.json",
-    "scenarios/characters/DC.json",
-    "scenarios/characters/Lo.json",
-    "scenarios/characters/MC.json",
-    "scenarios/characters/PS.json",
-    "scenarios/characters/TS.json",
-    "scenarios/characters/VN.json"
+    "./characters/BM.json",
+    "./characters/CD.json",
+    "./characters/DC.json",
+    "./characters/Lo.json",
+    "./characters/MC.json",
+    "./characters/PS.json",
+    "./characters/TS.json",
+    "./characters/VN.json"
   ],
 
  "evidences": [
