@@ -2,6 +2,92 @@ import { sendToAI } from './ai.js';
 
 class Game {
     constructor() {
+        // constructor 内に以下を追加
+this.state = {
+    history: {},
+    flags: {},
+    startTime: null,      // 追加
+    revealedClues: []     // 追加
+};
+
+// init 関数内でタイマーの初期化を呼ぶ
+async init() {
+    // ...既存の処理...
+    this.initTimer();
+    this.renderTimeClues();
+    setInterval(() => this.updateClueTimers(), 1000); // 1秒ごとに更新
+}
+
+/**
+ * タイマーの初期化（開始時間を保存・復元）
+ */
+initTimer() {
+    const savedTime = localStorage.getItem('little_engine_start_time');
+    if (savedTime) {
+        this.state.startTime = parseInt(savedTime);
+    } else {
+        this.state.startTime = Date.now();
+        localStorage.setItem('little_engine_start_time', this.state.startTime);
+    }
+}
+
+/**
+ * 手がかりボタンの生成
+ */
+renderTimeClues() {
+    const container = document.getElementById('time-clue-container');
+    container.innerHTML = '';
+    
+    this.scenario.time_clues.forEach((clue, index) => {
+        const btn = document.createElement('button');
+        btn.id = `clue-btn-${index}`;
+        btn.className = 'time-clue-btn';
+        btn.innerText = `${clue.title} (ロック中)`;
+        btn.onclick = () => this.showTimeClue(index);
+        container.appendChild(btn);
+    });
+    this.updateClueTimers();
+}
+
+/**
+ * カウントダウンとアンロック判定
+ */
+updateClueTimers() {
+    const now = Date.now();
+    const elapsedSeconds = Math.floor((now - this.state.startTime) / 1000);
+    
+    this.scenario.time_clues.forEach((clue, index) => {
+        const btn = document.getElementById(`clue-btn-${index}`);
+        const unlockSeconds = clue.unlock_minutes * 60;
+        const remaining = unlockSeconds - elapsedSeconds;
+        
+        if (remaining <= 0) {
+            btn.disabled = false;
+            btn.classList.add('unlocked');
+            btn.innerText = clue.title;
+        } else {
+            btn.disabled = true;
+            const m = Math.floor(remaining / 60);
+            const s = remaining % 60;
+            btn.innerText = `封印中 (${m}:${s.toString().padStart(2, '0')})`;
+        }
+    });
+}
+
+/**
+ * ボタンクリックで内容を表示
+ */
+showTimeClue(index) {
+    const clue = this.scenario.time_clues[index];
+    const display = document.getElementById('time-clue-display');
+    display.innerHTML = `
+        <div class="evidence-item" style="border-color: #d4a373; animation: fadeIn 0.5s;">
+            <strong>【調査報告：${clue.title}】</strong><br>
+            ${clue.content}
+        </div>
+    `;
+    // 既読フラグを保存したい場合はここに追加
+}
         this.scenario = null;
         this.currentCharacterId = null;
         this.state = { history: {}, flags: {} };
