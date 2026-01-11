@@ -3,60 +3,62 @@
     "title": "リトルエンジン号の最後",
     "outline": "大陸横断鉄道の3日目。列車の支配者・バーテンダーが失踪した。混乱の中、殺されたはずの農民が血まみれの服で現れる。この密室列車の嘘を暴け。",
     "culprit": "MC",
-    "truth": "犯人はマジシャンです。18:49に万年筆で刺殺しました。農民はバーテンダーと服を入れ替えていただけでした。"
+    "truth": "犯人はマジシャン（セバスチャン）です。彼は幼少期に自分を売ったバーテンダーへの復讐のため、15:30にビジネスマンの部屋から盗んだ黄金の万年筆を使い、18:49にバーテンダーを刺殺しました。\n\n【入れ替わりの真相】\n18:35、農民（サイラス）が金庫を破る際の変装として、酔いつぶれたバーテンダーと服を交換しました。そのため、マジシャンが18:49に殺害したのは「農民の服を着たバーテンダー」でした。その後、ビジネスマンがクローゼットでその死体を発見し、農民だと思い込んで首を絞めましたが、その時には既に刺殺されていました。\n\n農民（サイラス）は後に自分の服を着たバーテンダーの死体を発見。証拠隠滅のために死体を窓から投げ捨てましたが、自分の大切な「麻布の服」だけは死体から剥ぎ取って着直しました。その結果、エンディングで「殺された（穴の開いた）はずの服を着た農民」が生きて現れるという奇妙な状況が発生したのです。"
   },
+
   "characters": [
-    {
-      "id": "CD",
-      "name": "サミュエル・ジェンキンス",
-      "role": "車掌",
-      "system_prompt": "あなたは車掌のサミュエルです。潜入捜査官です。TSに執着しています。[UNLOCK:reveal_medicine]"
-    },
-    {
-      "id": "BM",
-      "name": "アーサー・P・バーナビー",
-      "role": "ビジネスマン",
-      "system_prompt": "あなたは実業家のアーサーです。農民を殺したと思っています。[UNLOCK:reveal_medicine]"
-    },
-    {
-      "id": "DC",
-      "name": "アリスター・ハモンド",
-      "role": "医者",
-      "system_prompt": "あなたは医者のアリスターです。不倫と妊娠を隠しています。[UNLOCK:reveal_cash][UNLOCK:reveal_pregnancy]"
-    },
-    {
-      "id": "Lo",
-      "name": "セドリック・サマセット卿",
-      "role": "領主",
-      "system_prompt": "あなたは偽領主のセドリックです。水道管を壊しました。[UNLOCK:reveal_pipe]"
-    },
-    {
-      "id": "MC",
-      "name": "セバスチャン",
-      "role": "マジシャン",
-      "system_prompt": "【犯人】あなたは復讐のためにバーテンダーを殺しました。[UNLOCK:reveal_rope]"
-    },
-    {
-      "id": "PS",
-      "name": "サイラス・マディガン",
-      "role": "農民",
-      "system_prompt": "あなたは奴隷売買人のサイラスです。万年筆を盗みました。[UNLOCK:reveal_pen]"
-    },
-    {
-      "id": "TS",
-      "name": "ベアトリス・ウェントワース",
-      "role": "テニススター",
-      "system_prompt": "あなたはテニススターのベアトリスです。不倫と薬物を隠しています。[UNLOCK:reveal_pregnancy]"
-    },
-    {
-      "id": "VN",
-      "name": "エレナ・カザリアン",
-      "role": "ヴァイオリニスト",
-      "system_prompt": "あなたは被害者のエレナです。バーテンダーを毒殺しようとしました。[UNLOCK:reveal_rope]"
-    }
+    "scenarios/characters/BM.json",
+    "scenarios/characters/CD.json",
+    "scenarios/characters/DC.json",
+    "scenarios/characters/Lo.json",
+    "scenarios/characters/MC.json",
+    "scenarios/characters/PS.json",
+    "scenarios/characters/TS.json",
+    "scenarios/characters/VN.json"
   ],
+
   "evidences": [
-    { "id": "bloody_frock", "name": "穴の開いた服", "description": "農民が着ている血まみれの服。", "unlock_condition": "start" },
-    { "id": "golden_pen", "name": "黄金の万年筆", "description": "農民が持っていた万年筆。", "unlock_condition": "reveal_pen" }
+    {
+      "id": "bloody_frock",
+      "name": "穴の開いた麻布の服",
+      "description": "農民(PS)が着ている服。胸のあたりに血とインクの跡がある鋭い穴。農民は生きているのに、なぜ服に穴があるのか？",
+      "unlock_condition": "start"
+    },
+    {
+      "id": "golden_pen",
+      "name": "黄金の万年筆",
+      "description": "農民(PS)のポケットから発見されたBM所有の万年筆。先端が鋭く研がれ、血が付着している。",
+      "unlock_condition": "reveal_pen"
+    },
+    {
+      "id": "black_rope",
+      "name": "ゴムキャップの付いたロープ",
+      "description": "喫煙車に残されていたロープ。端が黒いゴムで覆われている。マジシャンがVNを縛る際に使用した特注品だ。",
+      "unlock_condition": "reveal_rope"
+    },
+    {
+      "id": "pregnancy_test",
+      "name": "陽性の妊娠検査用紙",
+      "description": "医者の部屋で見つかった、テニススターが妊娠しているという決定的な証拠。",
+      "unlock_condition": "reveal_pregnancy"
+    },
+    {
+      "id": "medicine_bottle",
+      "name": "中絶薬の小瓶",
+      "description": "中身が空になった小瓶。多くの人物の手に渡り歩き、バーテンダーへの殺意を助長させた不吉な品。",
+      "unlock_condition": "reveal_medicine"
+    },
+    {
+      "id": "stolen_cash",
+      "name": "600ポンドの札束",
+      "description": "医者(DC)が隠し持っていた大金。バーテンダーを恐喝し、口封じに奪ったもの。",
+      "unlock_condition": "reveal_cash"
+    },
+    {
+      "id": "broken_iron_pipe",
+      "name": "ひしゃげた鉄パイプ",
+      "description": "メンテナンスクローゼットに落ちていた配管部品。水道管破裂の直接的な原因となった証拠品。",
+      "unlock_condition": "reveal_pipe"
+    }
   ]
 }
