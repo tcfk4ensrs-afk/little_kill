@@ -17,35 +17,38 @@ class Game {
 
             // 1. 容疑者リストの表示
             this.renderCharacterList();
+            
             // 2. 証拠の表示
             this.updateAttributesUI();
+            
             // 3. 手がかりボタンの表示
             this.renderTimeClues();
+            
             // 4 & 5. 犯人・リセットボタンの表示
             this.createMenuButtons();
 
             document.getElementById('case-title').innerText = this.scenario.case.title;
             document.getElementById('case-outline').innerText = this.scenario.case.outline;
 
+            // 1秒ごとにタイマーを更新
             setInterval(() => this.updateClueTimers(), 1000);
             console.log("Game ready.");
         } catch (e) {
-            console.error("Init Error:", e);
-            alert(`初期化に失敗しました。JSONの構文やファイルパスを確認してください。\nError: ${e.message}`);
+            console.error("Critical Init Error:", e);
+            alert(`初期化エラー: ${e.message}`);
         }
     }
 
     async loadScenario(path) {
         const res = await fetch(path);
-        if (!res.ok) throw new Error(`${path} not found`);
+        if (!res.ok) throw new Error(`${path} が見つかりません。`);
         this.scenario = await res.json();
 
-        // 容疑者データの個別ロード
         if (this.scenario.characters && typeof this.scenario.characters[0] === 'string') {
             const characterDataArray = await Promise.all(
                 this.scenario.characters.map(async (charPath) => {
                     const charRes = await fetch(charPath);
-                    if (!charRes.ok) throw new Error(`Character file not found: ${charPath}`);
+                    if (!charRes.ok) throw new Error(`ファイルが見つかりません: ${charPath}`);
                     return await charRes.json();
                 })
             );
@@ -146,7 +149,7 @@ class Game {
 
     startAccusation() {
         const char = this.scenario.characters.find(c => c.id === this.currentCharacterId);
-        if (!char) return alert("尋問相手を選んでから指名してください。");
+        if (!char) return alert("相手を選んでから指名してください。");
         if (confirm(`${char.name} を指名しますか？`)) {
             if (char.id === this.scenario.case.culprit) alert(`正解！\n\n${this.scenario.case.truth}`);
             else alert("不正解！ 真犯人は別にいます。");
