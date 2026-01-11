@@ -4,9 +4,12 @@ class Game {
     constructor() {
         this.scenario = null;
         this.currentCharacterId = null;
+        this.timerInterval = null; // タイマー管理用
         this.state = {
-            evidences: [],
-            history: {}, // { charId: [{role, text}] }
+            startTime: null,      // 捜査開始時刻
+            evidences: [],        // 発見した証拠品ID
+            unlockedClues: [],    // 解禁された手がかりID
+            history: {},          // 会話履歴
             flags: {}
         };
     }
@@ -14,9 +17,12 @@ class Game {
     async init() {
         try {
             console.log("Game initialising...");
-            // シナリオのメインファイルをロード
             await this.loadScenario('./scenarios/case1.json');
             this.loadState();
+            
+            // 時間経過による手がかりチェックを開始
+            this.startTimeCluesTimer();
+            
             this.renderCharacterList();
             this.updateAttributesUI();
             console.log("Game initialised successfully.");
@@ -39,21 +45,14 @@ class Game {
         try {
             const res = await fetch(path);
             if (!res.ok) throw new Error(`ファイルが見つかりません (${res.status}): ${path}`);
+            this.scenario = await res.json();
 
-            const text = await res.text();
-            this.scenario = JSON.parse(text);
-
-            // キャラクター個別ファイルのロード処理
             if (this.scenario.characters) {
-                const charPromises = this.scenario.characters.map(async (charOrPath) => {
-                    if (typeof charOrPath === 'string') {
-                        // パスを調整して fetch
-                        const fullPath = charOrPath.startsWith('.') ? charOrPath : `./${charOrPath}`;
-                        const charRes = await fetch(fullPath);
-                        if (!charRes.ok) throw new Error(`キャラファイル不在: ${fullPath}`);
-                        return await charRes.json();
-                    }
-                    return charOrPath;
+                const charPromises = this.scenario.characters.map(async (charPath) => {
+                    const fullPath = charPath.startsWith('.') ? charPath : `./${charPath}`;
+                    const charRes = await fetch(fullPath);
+                    if (!charRes.ok) throw new Error(`キャラファイル不在: ${fullPath}`);
+                    return await charRes.json();
                 });
                 this.scenario.characters = await Promise.all(charPromises);
             }
@@ -64,14 +63,12 @@ class Game {
             }
         } catch (e) {
             console.error("Failed to load scenario", e);
-            document.getElementById('case-title').innerText = "Load Error";
-            document.getElementById('case-outline').innerText = e.message;
             throw e;
         }
     }
 
     resetGame() {
-        if (confirm("本当にリセットしますか？\n履歴や証拠がすべて失われます。")) {
+        if (confirm("全ての捜査記録を破棄し、リトルエンジン号の出発時刻まで時を戻しますか？")) {
             localStorage.clear();
             location.reload();
         }
@@ -82,7 +79,7 @@ class Game {
         if (saved) {
             this.state = JSON.parse(saved);
         } else {
-            // ゲーム開始時に解禁されている証拠を設定
+            this.state.startTime = Date.now(); // 最初の起動時刻を記録
             if (this.scenario && this.scenario.evidences) {
                 this.scenario.evidences.forEach(ev => {
                     if (ev.unlock_condition === 'start') this.addEvidence(ev.id);
@@ -93,6 +90,36 @@ class Game {
 
     saveState() {
         localStorage.setItem('mystery_game_state_v1', JSON.stringify(this.state));
+    }
+
+    // --- 【新規】時間経過による手がかり解禁ロジック ---
+    startTimeCluesTimer() {
+        if (this.timerInterval) clearInterval(this.timerInterval);
+
+        // 10秒ごとに時間をチェック
+        this.timerInterval = setInterval(() => {
+            if (!this.scenario || !this.scenario.time_clues) return;
+
+            // 経過時間（分）を計算
+            const elapsedMinutes = (Date.now() - this.state.startTime) / 60000;
+
+            this.scenario.time_clues.forEach(clue => {
+                // 未解禁かつ、経過時間が設定値を超えた場合
+                if (!this.state.unlockedClues.includes(clue.id) && elapsedMinutes >= clue.unlock_minutes) {
+                    this.unlockTimeClue(clue);
+                }
+            });
+        }, 10000);
+    }
+
+    unlockTimeClue(clue) {
+        this.state.unlockedClues.push(clue.id);
+        this.saveState();
+        this.updateAttributesUI();
+        
+        // 捜査進展のアラート（よさげな言葉）
+        const alertMsg = `【🚨 捜査進展：${clue.title}】\n\n新たな事実が判明しました：\n${clue.content}`;
+        alert(alertMsg);
     }
 
     addEvidence(evidenceId) {
@@ -110,12 +137,7 @@ class Game {
         if (!this.scenario || !this.scenario.characters) return;
         const list = document.getElementById('character-list');
         list.innerHTML = '';
-        
-        // アイコンマップの定義
-        const icons = {
-            'VN': '🎻', 'MC': '🎩', 'TS': '🎾', 'BM': '💼', 
-            'DC': '💉', 'Lo': '🏰', 'PS': '🌾', 'CD': '👮'
-        };
+        const icons = { 'VN': '🎻', 'MC': '🎩', 'TS': '🎾', 'BM': '💼', 'DC': '💉', 'Lo': '🏰', 'PS': '🌾', 'CD': '👮' };
 
         this.scenario.characters.forEach(char => {
             const div = document.createElement('div');
@@ -172,7 +194,6 @@ class Game {
         const systemPrompt = this.constructSystemPrompt(char);
         const history = this.state.history[this.currentCharacterId] || [];
 
-        // AIからの応答を取得
         const responseText = await sendToAI(systemPrompt, text, history);
 
         this.appendMessage('model', responseText);
@@ -180,29 +201,29 @@ class Game {
     }
 
     appendMessage(role, text) {
-        if (!this.state.history[this.currentCharacterId]) {
-            this.state.history[this.currentCharacterId] = [];
-        }
+        if (!this.state.history[this.currentCharacterId]) this.state.history[this.currentCharacterId] = [];
         this.state.history[this.currentCharacterId].push({ role, text });
         this.saveState();
         this.renderChatLog();
     }
 
-    // 【マイナーチェンジ】新シナリオのJSON構造に最適化
     constructSystemPrompt(char) {
         const knownEvidences = (this.state.evidences || []).map(eid => {
             const e = (this.scenario.evidences || []).find(ev => ev.id === eid);
             return e ? `・${e.name}: ${e.description}` : null;
         }).filter(Boolean).join("\n");
 
+        // 時間経過で解禁された手がかりもAIに教える
+        const unlockedClues = (this.state.unlockedClues || []).map(cid => {
+            const c = (this.scenario.time_clues || []).find(clue => clue.id === cid);
+            return c ? `・${c.title}: ${c.content}` : null;
+        }).filter(Boolean).join("\n");
+
         const directives = char.system_prompt_directives || {};
-        const timeline = char.detailed_timeline?.map(t => `[${t.time}] ${t.action} (心境: ${t.note})`).join("\n") || "記録なし";
+        const timeline = char.detailed_timeline?.map(t => `[${t.time}] ${t.action}`).join("\n") || "";
         
         return `
-あなたはミステリーの登場人物「${char.name}」として振る舞ってください。
-
-# あなたの世界観
-${directives.world_view || ""}
+あなたは「${char.name}」として、19世紀末の列車内の人物として振る舞ってください。
 
 # 行動履歴（タイムライン）
 ${timeline}
@@ -212,93 +233,90 @@ ${char.personality.join("、")}
 ${char.background?.summary || ""}
 
 # 嘘と秘匿のルール
-- 許可されている嘘: ${directives.lying_rules?.allowed.join(", ") || "特になし"}
-- 絶対に隠すべき事実: ${directives.lying_rules?.forbidden.join(", ") || "なし"}
-- 秘密事項: ${(char.secrets || []).join("、")}
+- 許可された嘘: ${directives.lying_rules?.allowed.join(", ") || "なし"}
+- 秘匿すべき事実: ${directives.lying_rules?.forbidden.join(", ") || "なし"}
 
-# 口調・セリフの指針
-${directives.language || "役柄に相応しい言葉遣い"}
-- セリフ例: ${directives.format?.outer_voice || ""}
-- 心の声（参考）: ${directives.format?.inner_voice || ""}
-
-# プレイヤーが所持している証拠品
+# プレイヤーが持っている証拠品
 ${knownEvidences}
 
-# ルール
-- 探偵（プレイヤー）に追い詰められるまでは、嘘をついたり話をはぐらかしたりして保身に努めてください。
-- 決してAIであることを明かさず、常に19世紀末の列車内にいる人物として応答してください。
+# 現在判明している手がかり
+${unlockedClues}
+
+# 指針
+- 探偵に追い詰められるまでは保身を優先せよ。
+- 決してAIとは認めず、時代背景に合った口調を崩さないこと。
         `.trim();
     }
 
     updateAttributesUI() {
-        if (!this.scenario || !this.scenario.evidences) return;
+        if (!this.scenario) return;
         const list = document.getElementById('evidence-list');
         list.innerHTML = '';
-        if (this.state.evidences.length === 0) {
-            list.innerHTML = '<p style="color:#666; font-size:0.9rem; padding:10px;">(まだ証拠はありません)</p>';
-            return;
-        }
-
+        
+        // 証拠品のレンダリング
         this.state.evidences.forEach(eid => {
             const ev = this.scenario.evidences.find(e => e.id === eid);
-            if (ev) {
-                const div = document.createElement('div');
-                div.className = 'evidence-item';
-                div.innerHTML = `<strong>${ev.name}</strong><br><small>${ev.description}</small>`;
-                div.style.cssText = "padding:8px; border-bottom:1px solid #444; font-size:0.9rem;";
-                list.appendChild(div);
-            }
+            if (ev) this.renderInfoItem(list, ev.name, ev.description, "【証拠品】");
         });
+
+        // 手がかりのレンダリング
+        this.state.unlockedClues.forEach(cid => {
+            const clue = this.scenario.time_clues.find(c => c.id === cid);
+            if (clue) this.renderInfoItem(list, clue.title, clue.content, "【手がかり】");
+        });
+
+        if (list.innerHTML === '') {
+            list.innerHTML = '<p style="color:#666; font-size:0.9rem; padding:10px;">(まだ有力な情報はありません)</p>';
+        }
     }
 
-    // 【マイナーチェンジ】キーワードによる証拠解禁を汎用化
+    renderInfoItem(container, title, desc, label) {
+        const div = document.createElement('div');
+        div.className = 'evidence-item';
+        div.innerHTML = `<span style="color:var(--accent-color); font-weight:bold;">${label}</span> <strong>${title}</strong><br><small>${desc}</small>`;
+        div.style.cssText = "padding:8px; border-bottom:1px solid #444; font-size:0.9rem;";
+        container.appendChild(div);
+    }
+
     checkEvidenceUnlock(userText, aiText) {
         if (!this.scenario || !this.scenario.evidences) return;
-        
         const unlockMap = {
-            'golden_pen': ['万年筆', 'ペン', '刺し傷', 'インク'],
-            'black_rope': ['ロープ', '縄', '縛る', 'ゴム'],
-            'pregnancy_test': ['妊娠', '陽性', '医者', '検査'],
-            'medicine_bottle': ['中絶薬', 'ピンク', 'コート'],
-            'stolen_cash': ['600ポンド', '札束', '現金', '恐喝'],
-            'broken_iron_pipe': ['鉄パイプ', '水道管', '破裂']
+            'golden_pen': ['万年筆', 'ペン', '刺し傷'],
+            'black_rope': ['ロープ', '縄', '縛'],
+            'pregnancy_test': ['妊娠', '陽性', '医者'],
+            'medicine_bottle': ['中絶薬', 'ピンク', '小瓶'],
+            'stolen_cash': ['600ポンド', '札束', '現金'],
+            'broken_iron_pipe': ['鉄パイプ', '水道管']
         };
 
         this.scenario.evidences.forEach(ev => {
             if (this.state.evidences.includes(ev.id)) return;
-            
             const keywords = unlockMap[ev.id];
-            if (keywords) {
-                const isUserTalking = keywords.some(kw => userText.includes(kw));
-                const isAiRevealing = keywords.some(kw => aiText.includes(kw));
-                
-                if (isUserTalking || isAiRevealing) {
-                    this.addEvidence(ev.id);
-                    this.updateAttributesUI();
-                    alert(`【新証拠】\n${ev.name}`);
-                }
+            if (keywords?.some(kw => userText.includes(kw) || aiText.includes(kw))) {
+                this.addEvidence(ev.id);
+                this.updateAttributesUI();
+                alert(`【🔎 捜査進展：新たな証拠品を確保しました】\n\n物件：${ev.name}`);
             }
         });
     }
 
     startAccusation() {
-        const culpritName = prompt("犯人だと思う人物名を入力してください：\n（例：セバスチャン、マジシャン）");
+        const culpritName = prompt("霧の中に潜む、真犯人の名を告げてください：\n（例：セバスチャン、マジシャン）");
         if (!culpritName) return;
 
-        // 全キャラクターから入力された名前を含む人物を探す
         const target = this.scenario.characters.find(c => 
             c.name.includes(culpritName) || c.role.includes(culpritName)
         );
 
         if (!target) {
-            alert("そのような人物は乗船名簿にありません。");
+            alert("そのような人物は乗客名簿に存在しません。");
             return;
         }
 
         if (target.id === this.scenario.case.culprit) {
-            alert(`【正解！】\n真犯人は ${target.name} でした。\n\n【真実】\n${this.scenario.case.truth}`);
+            alert(`【⚖️ 審判：正解】\n真犯人は ${target.name} で相違ありません。\n\n【真実】\n${this.scenario.case.truth}`);
         } else {
-            alert(`【不正解】\n${target.name} は犯人ではありません。`);
+            alert(`【⚖️ 審判：不正解】\n残念ながら ${target.name} は真犯人ではありません。`);
         }
     }
 }
@@ -309,16 +327,14 @@ window.game = game;
 document.addEventListener('DOMContentLoaded', () => {
     game.init();
 
-    // 犯人指名ボタンの追加
     const accuseBtn = document.createElement('button');
-    accuseBtn.innerText = '👉 犯人を指名する';
+    accuseBtn.innerText = '👉 真犯人を告発する';
     accuseBtn.style.cssText = "display:block; width:90%; margin:20px auto; padding:12px; background:#d32f2f; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer;";
     accuseBtn.onclick = () => game.startAccusation();
     document.querySelector('#main-menu .content').appendChild(accuseBtn);
 
-    // リセットボタンの追加
     const resetBtn = document.createElement('button');
-    resetBtn.innerText = '🔄 最初からやり直す';
+    resetBtn.innerText = '🔄 捜査を最初からやり直す';
     resetBtn.style.cssText = "display:block; width:90%; margin:10px auto; padding:10px; background:#555; color:white; border:none; border-radius:5px; cursor:pointer; font-size:0.9rem;";
     resetBtn.onclick = () => game.resetGame();
     document.querySelector('#main-menu .content').appendChild(resetBtn);
