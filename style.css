@@ -65,7 +65,18 @@ h1 {
     padding: 20px;
     background-image: url('https://www.transparenttextures.com/patterns/dark-leather.png'); /* レザー風テクスチャ */
 }
-
+/* 列車マップのスタイル */
+.train-map {
+    width: 100%;
+    max-width: 760px; /* コンテンツ幅に合わせる */
+    height: auto;
+    display: block;
+    margin: 0 auto 30px auto; /* 下に余白を作る */
+    border: 2px solid var(--accent-color); /* 真鍮色の枠 */
+    border-radius: 5px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6); /* 影をつけて立体感を出す */
+    background-color: #2c1e12; /* 画像が読み込まれるまでの背景色 */
+}
 .section-title {
     font-size: 1rem;
     color: var(--accent-color);
