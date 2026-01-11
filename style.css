@@ -1,15 +1,13 @@
-/* --- 変数定義：19世紀の豪華列車カラー --- */
 :root {
-    --bg-color: #1a120b;         /* 深い木目調の黒茶 */
-    --accent-color: #d4a373;     /* 真鍮・金色のアクセント */
-    --text-color: #fefae0;       /* 古紙のようなクリーム色 */
-    --card-bg: #2c1e12;          /* マホガニーウッド */
-    --chat-user-bg: #5c4033;     /* 使い込まれた革の茶色 */
-    --chat-ai-bg: #3d2b1a;       /* 落ち着いた影の茶色 */
-    --border-color: #432e1d;     /* 木枠の境界線 */
+    --bg-color: #1a120b;
+    --accent-color: #d4a373;
+    --text-color: #fefae0;
+    --card-bg: #2c1e12;
+    --chat-user-bg: #5c4033;
+    --chat-ai-bg: #3d2b1a;
+    --border-color: #432e1d;
 }
 
-/* --- 全体レイアウト --- */
 body {
     margin: 0;
     font-family: 'Georgia', 'serif', 'Hiragino Mincho ProN', 'MS P明朝';
@@ -41,13 +39,6 @@ header {
     border-bottom: 2px solid var(--accent-color);
 }
 
-h1 {
-    margin: 0;
-    font-size: 1.3rem;
-    color: var(--accent-color);
-    letter-spacing: 2px;
-}
-
 .content {
     flex: 1;
     overflow-y: auto;
@@ -64,17 +55,14 @@ h1 {
     text-transform: uppercase;
 }
 
-/* --- 列車マップ --- */
 .train-map {
     width: 100%;
     height: auto;
     border: 2px solid var(--accent-color);
     border-radius: 5px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
     margin-bottom: 20px;
 }
 
-/* --- 時間経過の手がかり --- */
 #time-clue-container {
     display: flex;
     flex-direction: column;
@@ -88,10 +76,7 @@ h1 {
     border: 1px solid #332211;
     padding: 12px;
     text-align: left;
-    font-family: inherit;
-    font-size: 0.9rem;
     cursor: not-allowed;
-    transition: all 0.3s;
 }
 
 .time-clue-btn.unlocked {
@@ -101,12 +86,6 @@ h1 {
     cursor: pointer;
 }
 
-.time-clue-btn.unlocked:hover {
-    background: #3d2b1a;
-    box-shadow: 0 0 10px rgba(212, 163, 115, 0.2);
-}
-
-/* --- キャラクターリスト --- */
 #character-list {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -119,26 +98,13 @@ h1 {
     padding: 12px 8px;
     text-align: center;
     cursor: pointer;
-    transition: transform 0.2s, border-color 0.2s;
 }
 
-.character-card:hover {
-    border-color: var(--accent-color);
-    transform: translateY(-2px);
-}
+.character-card:hover { border-color: var(--accent-color); }
 
-.char-role {
-    font-size: 0.7rem;
-    color: var(--accent-color);
-    display: block;
-}
+.char-role { font-size: 0.7rem; color: var(--accent-color); display: block; }
+.char-name { font-size: 0.85rem; font-weight: bold; }
 
-.char-name {
-    font-size: 0.85rem;
-    font-weight: bold;
-}
-
-/* --- 証拠リスト --- */
 #evidence-list {
     background: rgba(0,0,0,0.2);
     border: 1px inset var(--border-color);
@@ -149,12 +115,9 @@ h1 {
     padding: 10px;
     border-bottom: 1px solid var(--border-color);
     font-size: 0.9rem;
-    animation: fadeIn 0.5s ease;
 }
 
-/* --- 尋問室 (チャット) --- */
 #interrogation-room { height: 100%; display: flex; flex-direction: column; }
-
 #room-header {
     display: flex;
     justify-content: space-between;
@@ -162,14 +125,6 @@ h1 {
     padding: 15px;
     background: #110c08;
     border-bottom: 2px solid var(--accent-color);
-}
-
-#back-btn {
-    background: none;
-    border: 1px solid var(--accent-color);
-    color: var(--accent-color);
-    padding: 5px 12px;
-    cursor: pointer;
 }
 
 #chat-log {
@@ -182,57 +137,12 @@ h1 {
     background: #0d0907;
 }
 
-.message {
-    max-width: 80%;
-    padding: 10px 15px;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    line-height: 1.5;
-}
+.message { max-width: 80%; padding: 10px 15px; border-radius: 8px; }
+.message.user { align-self: flex-end; background: var(--chat-user-bg); color: white; }
+.message.model { align-self: flex-start; background: var(--chat-ai-bg); border: 1px solid var(--border-color); color: var(--text-color); }
 
-.message.user {
-    align-self: flex-end;
-    background: var(--chat-user-bg);
-    color: white;
-}
+#input-area { display: flex; padding: 15px; background: #1a120b; border-top: 2px solid var(--accent-color); gap: 10px; }
+#chat-input { flex: 1; background: #0d0907; border: 1px solid var(--border-color); color: var(--text-color); padding: 10px; }
+#send-btn { background: var(--accent-color); border: none; padding: 0 20px; font-weight: bold; cursor: pointer; }
 
-.message.model {
-    align-self: flex-start;
-    background: var(--chat-ai-bg);
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
-}
-
-#input-area {
-    display: flex;
-    padding: 15px;
-    background: #1a120b;
-    border-top: 2px solid var(--accent-color);
-    gap: 10px;
-}
-
-#chat-input {
-    flex: 1;
-    background: #0d0907;
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
-    padding: 10px;
-}
-
-#send-btn {
-    background: var(--accent-color);
-    border: none;
-    padding: 0 20px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-/* --- スマホ調整 --- */
-@media (max-width: 600px) {
-    #character-list { grid-template-columns: repeat(2, 1fr); }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+@media (max-width: 600px) { #character-list { grid-template-columns: repeat(2, 1fr); } }
