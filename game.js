@@ -4,47 +4,43 @@ class Game {
     constructor() {
         this.scenario = null;
         this.currentCharacterId = null;
-        this.state = { history: {}, flags: {}, startTime: null };
+        this.state = {
+            history: {},
+            flags: {}
+        };
     }
 
     async init() {
         try {
-            console.log("Loading scenario...");
+            console.log("リトルエンジン号 システム起動中...");
             await this.loadScenario('./scenarios/case1.json');
             
-            this.loadState();
-            this.initTimer();
-
-            // 1. 容疑者リストの表示
-            this.renderCharacterList();
-            
-            // 2. 証拠の表示
-            this.updateAttributesUI();
-            
-            // 3. 手がかりボタンの表示
-            this.renderTimeClues();
-            
-            // 4 & 5. 犯人・リセットボタンの表示
-            this.createMenuButtons();
-
+            // UIの初期反映
             document.getElementById('case-title').innerText = this.scenario.case.title;
             document.getElementById('case-outline').innerText = this.scenario.case.outline;
-
-            // 1秒ごとにタイマーを更新
-            setInterval(() => this.updateClueTimers(), 1000);
-            console.log("Game ready.");
+            
+            this.loadState();
+            this.renderCharacterList();
+            this.updateAttributesUI();
+            
+            console.log("準備完了。");
         } catch (e) {
-            console.error("Critical Init Error:", e);
-            alert(`初期化エラー: ${e.message}`);
+            console.error("初期化エラー:", e);
+            alert("データの読み込みに失敗しました。構成を確認してください。");
         }
     }
 
+    /**
+     * シナリオとキャラクターデータを読み込む
+     */
     async loadScenario(path) {
         const res = await fetch(path);
-        if (!res.ok) throw new Error(`${path} が見つかりません。`);
+        if (!res.ok) throw new Error("case1.jsonが見つかりません。");
         this.scenario = await res.json();
 
+        // 【重要】charactersが文字列（パス）の配列だった場合、各ファイルを個別にロードする
         if (this.scenario.characters && typeof this.scenario.characters[0] === 'string') {
+            console.log("外部キャラクターファイルをロード中...");
             const characterDataArray = await Promise.all(
                 this.scenario.characters.map(async (charPath) => {
                     const charRes = await fetch(charPath);
@@ -52,24 +48,23 @@ class Game {
                     return await charRes.json();
                 })
             );
+            // 読み込んだデータで配列を上書きする
             this.scenario.characters = characterDataArray;
         }
-    }
-
-    initTimer() {
-        const savedTime = localStorage.getItem('little_engine_start_time');
-        this.state.startTime = savedTime ? parseInt(savedTime) : Date.now();
-        if (!savedTime) localStorage.setItem('little_engine_start_time', this.state.startTime);
     }
 
     renderCharacterList() {
         const list = document.getElementById('character-list');
         if (!list) return;
         list.innerHTML = '';
+        
         this.scenario.characters.forEach(char => {
             const card = document.createElement('div');
             card.className = 'character-card';
-            card.innerHTML = `<span class="char-role">${char.role}</span><span class="char-name">${char.name}</span>`;
+            card.innerHTML = `
+                <span class="char-role">${char.role}</span>
+                <span class="char-name">${char.name}</span>
+            `;
             card.onclick = () => this.enterInterrogation(char.id);
             list.appendChild(card);
         });
@@ -78,105 +73,115 @@ class Game {
     updateAttributesUI() {
         const list = document.getElementById('evidence-list');
         if (!list) return;
-        const available = this.scenario.evidences.filter(ev => 
-            ev.unlock_condition === 'start' || this.state.flags[ev.unlock_condition]
-        );
-        list.innerHTML = available.length ? '' : '<p style="color:#888; text-align:center; padding:15px;">(まだ証拠はありません)</p>';
-        available.forEach(ev => {
+        list.innerHTML = '';
+        
+        const availableEvidences = this.scenario.evidences.filter(ev => {
+            return ev.unlock_condition === 'start' || this.state.flags[ev.unlock_condition];
+        });
+
+        if (availableEvidences.length === 0) {
+            list.innerHTML = '<p style="color:#666; font-size:0.85rem; padding:15px; text-align:center;">(まだ証拠はありません)</p>';
+            return;
+        }
+
+        availableEvidences.forEach(ev => {
             const item = document.createElement('div');
             item.className = 'evidence-item';
-            item.innerHTML = `<strong>【${ev.name}】</strong><br>${ev.description}`;
+            item.innerHTML = `
+                <div style="color: var(--accent-color); font-weight: bold; margin-bottom: 3px;">【${ev.name}】</div>
+                <div style="font-size: 0.85rem; opacity: 0.9;">${ev.description}</div>
+            `;
             list.appendChild(item);
         });
-    }
-
-    renderTimeClues() {
-        const container = document.getElementById('time-clue-container');
-        if (!container || !this.scenario.time_clues) return;
-        container.innerHTML = '';
-        this.scenario.time_clues.forEach((clue, index) => {
-            const btn = document.createElement('button');
-            btn.id = `clue-btn-${index}`;
-            btn.className = 'time-clue-btn';
-            btn.onclick = () => this.showTimeClue(index);
-            container.appendChild(btn);
-        });
-    }
-
-    updateClueTimers() {
-        if (!this.scenario || !this.scenario.time_clues) return;
-        const elapsed = Math.floor((Date.now() - this.state.startTime) / 1000);
-        this.scenario.time_clues.forEach((clue, index) => {
-            const btn = document.getElementById(`clue-btn-${index}`);
-            if (!btn) return;
-            const remaining = (clue.unlock_minutes * 60) - elapsed;
-            if (remaining <= 0) {
-                btn.disabled = false;
-                btn.classList.add('unlocked');
-                btn.innerText = clue.title;
-            } else {
-                btn.disabled = true;
-                btn.innerText = `封印中 (${Math.floor(remaining / 60)}:${(remaining % 60).toString().padStart(2, '0')})`;
-            }
-        });
-    }
-
-    showTimeClue(index) {
-        const clue = this.scenario.time_clues[index];
-        document.getElementById('time-clue-display').innerHTML = `
-            <div class="evidence-item" style="border-color: #d4a373;">
-                <strong>【調査報告：${clue.title}】</strong><br>${clue.content}
-            </div>`;
-    }
-
-    createMenuButtons() {
-        const menuContent = document.querySelector('#main-menu .content');
-        if (document.querySelector('.accuse-btn-main')) return;
-
-        const accuseBtn = document.createElement('button');
-        accuseBtn.innerText = '🚨 犯人を指名する';
-        accuseBtn.className = 'accuse-btn-main';
-        accuseBtn.style.cssText = "display:block; width:90%; margin:20px auto; padding:15px; background:#8b0000; color:white; border:none; border-radius:5px; font-weight:bold; cursor:pointer;";
-        accuseBtn.onclick = () => this.startAccusation();
-        menuContent.appendChild(accuseBtn);
-
-        const resetBtn = document.createElement('button');
-        resetBtn.innerText = 'リセット';
-        resetBtn.style.cssText = "display:block; width:90%; margin:10px auto; padding:10px; background:#333; color:#777; border:none; border-radius:5px; cursor:pointer;";
-        resetBtn.onclick = () => this.resetGame();
-        menuContent.appendChild(resetBtn);
-    }
-
-    startAccusation() {
-        const char = this.scenario.characters.find(c => c.id === this.currentCharacterId);
-        if (!char) return alert("相手を選んでから指名してください。");
-        if (confirm(`${char.name} を指名しますか？`)) {
-            if (char.id === this.scenario.case.culprit) alert(`正解！\n\n${this.scenario.case.truth}`);
-            else alert("不正解！ 真犯人は別にいます。");
-        }
     }
 
     enterInterrogation(charId) {
         this.currentCharacterId = charId;
         const char = this.scenario.characters.find(c => c.id === charId);
+        
         document.getElementById('target-name').innerText = char.name;
         document.getElementById('main-menu').style.display = 'none';
         document.getElementById('interrogation-room').style.display = 'flex';
+        
         const log = document.getElementById('chat-log');
         log.innerHTML = '';
-        (this.state.history[charId] || []).forEach(msg => this.appendMessageToUI(msg.role, msg.text));
+        const history = this.state.history[charId] || [];
+        history.forEach(msg => this.appendMessageToUI(msg.role, msg.text));
+        
+        if (history.length === 0) {
+            this.addMessage('model', `……何か用か？ 手短に頼む。`);
+        }
+    }
+
+    async sendMessage() {
+        const input = document.getElementById('chat-input');
+        const userText = input.value.trim();
+        if (!userText || !this.currentCharacterId) return;
+
+        this.addMessage('user', userText);
+        input.value = '';
+
+        const char = this.scenario.characters.find(c => c.id === this.currentCharacterId);
+        const history = this.state.history[this.currentCharacterId] || [];
+
+        try {
+            let aiResponse = await sendToAI(char.system_prompt, userText, history);
+            
+            const flagMatch = aiResponse.match(/\[UNLOCK:(\w+)\]/);
+            if (flagMatch) {
+                const flagName = flagMatch[1];
+                if (!this.state.flags[flagName]) {
+                    this.state.flags[flagName] = true;
+                    this.updateAttributesUI();
+                }
+                aiResponse = aiResponse.replace(/\[UNLOCK:(\w+)\]/g, '').trim();
+            }
+
+            this.addMessage('model', aiResponse);
+            this.saveState();
+        } catch (error) {
+            console.error("AI通信エラー:", error);
+            this.addMessage('model', "……すまない、今は少し考えがまとまらない。");
+        }
+    }
+
+    addMessage(role, text) {
+        if (!this.state.history[this.currentCharacterId]) {
+            this.state.history[this.currentCharacterId] = [];
+        }
+        this.state.history[this.currentCharacterId].push({ role, text });
+        return this.appendMessageToUI(role, text);
     }
 
     appendMessageToUI(role, text) {
         const log = document.getElementById('chat-log');
-        const div = document.createElement('div');
-        div.className = `message ${role}`;
-        div.innerText = text;
-        log.appendChild(div);
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${role}`;
+        msgDiv.innerText = text;
+        log.appendChild(msgDiv);
         log.scrollTop = log.scrollHeight;
+        return msgDiv;
     }
 
-    saveState() { localStorage.setItem('little_engine_save', JSON.stringify({ history: this.state.history, flags: this.state.flags })); }
+    startAccusation() {
+        const char = this.scenario.characters.find(c => c.id === this.currentCharacterId);
+        if (!char) return alert("相手を選んでください。");
+        if (confirm(`${char.name} を指名しますか？`)) {
+            if (char.id === this.scenario.case.culprit) {
+                alert(`正解！\n\n${this.scenario.case.truth}`);
+            } else {
+                alert(`不正解！ ${char.name} は犯人ではありません。`);
+            }
+        }
+    }
+
+    saveState() {
+        localStorage.setItem('little_engine_save', JSON.stringify({
+            history: this.state.history,
+            flags: this.state.flags
+        }));
+    }
+
     loadState() {
         const saved = localStorage.getItem('little_engine_save');
         if (saved) {
@@ -185,8 +190,43 @@ class Game {
             this.state.flags = data.flags || {};
         }
     }
-    resetGame() { if (confirm("リセットしますか？")) { localStorage.clear(); location.reload(); } }
 }
 
 const game = new Game();
-document.addEventListener('DOMContentLoaded', () => game.init());
+window.game = game;
+document.addEventListener('DOMContentLoaded', () => {
+    game.init();
+    document.getElementById('back-btn').onclick = () => {
+        document.getElementById('interrogation-room').style.display = 'none';
+        document.getElementById('main-menu').style.display = 'block';
+    };
+    document.getElementById('send-btn').onclick = () => game.sendMessage();
+
+    
+    // 入力欄でEnterキーが押された時
+    document.getElementById('chat-input').onkeypress = (e) => {
+        if (e.key === 'Enter') game.sendMessage();
+    };
+
+    // 戻るボタン
+    document.getElementById('back-btn').onclick = () => {
+        document.getElementById('interrogation-room').style.display = 'none';
+        document.getElementById('main-menu').style.display = 'block';
+        game.updateAttributesUI(); // リストを最新にする
+    };
+
+    // 指名ボタン（動的に作成）
+    const accuseBtn = document.createElement('button');
+    accuseBtn.innerText = '🚨 犯人を指名する';
+    accuseBtn.className = 'accuse-button'; // CSSでデザイン
+    accuseBtn.style.cssText = "display:block; width:90%; margin:20px auto; padding:15px; background:#8b0000; color:white; border:1px solid var(--accent-color); border-radius:5px; font-weight:bold; cursor:pointer;";
+    accuseBtn.onclick = () => game.startAccusation();
+    document.querySelector('#main-menu .content').appendChild(accuseBtn);
+
+    // リセットボタン
+    const resetBtn = document.createElement('button');
+    resetBtn.innerText = '最初からやり直す';
+    resetBtn.style.cssText = "display:block; width:90%; margin:10px auto; padding:10px; background:#333; color:#888; border:none; border-radius:5px; cursor:pointer; font-size:0.8rem;";
+    resetBtn.onclick = () => game.resetGame();
+    document.querySelector('#main-menu .content').appendChild(resetBtn);
+});
