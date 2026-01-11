@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Murder Mystery: リトルエンジン号の最後</title>
+    <style>
+        :root {
+            --bg-color: #1a120b;
+            --accent-color: #d4a373;
+            --text-color: #fefae0;
+            --card-bg: #2c1e12;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Georgia', 'serif', 'Hiragino Mincho ProN', 'MS P明朝';
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            text-align: center;
+            padding: 80px 20px;
+            background: linear-gradient(rgba(26, 18, 11, 0.8), rgba(26, 18, 11, 0.8)),
+                        url('https://images.unsplash.com/photo-1515165597730-98350aa9bd0a?auto=format&fit=crop&q=80&w=2000'); 
+            background-size: cover;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: var(--accent-color);
+            letter-spacing: 0.2rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        section {
+            margin-bottom: 60px;
+        }
+
+        h2 {
+            border-left: 4px solid var(--accent-color);
+            padding-left: 15px;
+            color: var(--accent-color);
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+        }
+
+        .synopsis-box {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border: 1px solid #432e1d;
+            border-radius: 5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            font-size: 1.1rem;
+        }
+
+        /* キャラクター集合画像のスタイル */
+        .main-character-img {
+            width: 100%;
+            max-width: 900px;
+            display: block;
+            margin: 0 auto 50px auto;
+            border: 3px solid var(--accent-color);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+
+        /* 登場人物グリッド */
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .char-card {
+            background-color: var(--card-bg);
+            border: 1px solid #432e1d;
+            border-radius: 8px;
+            padding: 15px;
+            transition: transform 0.3s;
+        }
+
+        .char-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-color);
+        }
+
+        .char-role {
+            font-weight: bold;
+            color: var(--accent-color);
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .char-name {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            display: block;
+            border-bottom: 1px solid #432e1d;
+            padding-bottom: 5px;
+        }
+
+        .char-desc {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            margin: 0;
+        }
+
+        .cta-section {
+            text-align: center;
+            margin-top: 80px;
+            padding-bottom: 60px;
+        }
+
+        .btn-enter {
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            padding: 20px 60px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            transition: all 0.3s;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(212, 163, 115, 0.4);
+        }
+
+        .btn-enter:hover {
+            background-color: #fefae0;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 850px) {
+            .character-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .character-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>リトルエンジン号の最後</h1>
+        <p class="subtitle">大陸横断を走る、嘘と欲望のミステリー</p>
+    </header>
+
+    <main>
+        <section id="synopsis">
+            <h2>あらすじ</h2>
+            <div class="synopsis-box">
+                <p>19世紀末、蒸気機関の咆哮と共に大陸を横断する豪華列車「リトルエンジン号」。</p>
+                <p>3日間の旅の終着を前に、列車の絶対的な支配者であった「バーテンダー」が忽然と姿を消した。密室となった列車内に残されたのは、それぞれに拭いきれぬ過去と秘密を抱えた8人の乗客たち。</p>
+                <p>吹き荒れる嵐、突如として破裂する水道管、そして訪れる停電……。<br>
+                闇の中で響いた悲鳴。再び明かりが灯ったとき、そこには誰もいなかったはずの「死体」の影があった。</p>
+                <p><strong>「殺されたのは誰か？ 犯人はどこへ消えた？ そして、なぜ死んだはずの男がそこに立っているのか？」</strong></p>
+                <p>あなたたちは、偽りに満ちたこの列車から、真実を見つけ出すことができるか？</p>
+            </div>
+        </section>
+
+        <section id="characters">
+            <h2>登場人物</h2>
+            
+            <img src="characters.png" alt="リトルエンジン号の乗客たち" class="main-character-img">
+
+            <div class="character-grid">
+                <div class="char-card">
+                    <span class="char-role">ビジネスマン</span>
+                    <span class="char-name">アーサー・P・バーナビー</span>
+                    <p class="char-desc">成功した実業家。失った万年筆を追い、手段を選ばぬ執念を見せる。</p>
+                </div>
+                <div class="char-card">
+                    <span class="char-role">車掌</span>
+                    <span class="char-name">サミュエル・ジェンキンス</span>
+                    <p class="char-desc">正体は潜入捜査官。規律の裏で、ある女性への歪んだ恋心を抱く。</p>
+                </div>
+                <div class="char-card">
+                    <span class="char-role">医者</span>
+                    <span class="char-name">アリスター・ハモンド</span>
+                    <p class="char-desc">落ちこぼれの精神科医。薬物に溺れ、秘密の不倫関係に怯えている。</p>
+                </div>
+                <div class="char-card">
+                    <span class="char-role">領主</span>
+                    <span class="char-name">セドリック・サマセット卿</span>
+                    <p class="char-desc">偽の爵位を纏う元軍人。過去の戦場の幻影に苛まれ続けている。</p>
+                </div>
+                <div class="char-card">
+                    <span class="char-role">マジシャン</span>
+                    <span class="char-name">セバスチャン</span>
+                    <p class="char-desc">復讐を誓う興行師。巧みなトリックでバーテンダーの命を狙う。</p>
+                </div>
+                <div class="char-card">
+                    <span class="char-role">農民</span>
+                    <span class="char-name">サイラス・マディガン</span>
+                    <p class="char-desc">冷酷な人身売買人。相棒を裏切り、金庫の金を独り占めしようと画策する。</p>
+                </div>
+                <div class="char-card">
+                    <span class="char-role">テニススター</span>
+                    <span class="char-name">ベアトリス・ウェントワース</span>
+                    <p class="char-desc">美貌の裏に殺意を隠す悪女。夫を操り、自らのスキャンダルを葬ろうとする。</p>
+                </div>
+                <div class="char-card">
+                    <span class="char-role">ヴァイオリニスト</span>
+                    <span class="char-name">エレナ・カザリアン</span>
+                    <p class="char-desc">自由を求める被害者。男たちを呪い、絶望の淵で復讐の機会を伺う。</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="cta-section">
+            <a href="Index2.html" class="btn-enter">調査を開始する</a>
+        </div>
+    </main>
+
+    <footer style="text-align: center; padding: 40px; font-size: 0.8rem; opacity: 0.5; border-top: 1px solid #432e1d;">
+        &copy; 2026 The Little Engine Mystery - Murder Mystery Thought Partner
+    </footer>
+
+</body>
+</html>
