@@ -1,53 +1,59 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>捜査開始 - リトルエンジン号の最後</title>
+    <title>Murder Mystery AI - リトルエンジン号の最後</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div id="app">
         <div id="main-menu">
             <header>
-                <h1 id="case-title">捜査本部：リトルエンジン号の最後</h1>
-                <p id="case-outline" style="font-size: 0.8rem; opacity: 0.7;">
-                    バーテンダーが消え、農民が死体となって現れた。この列車の嘘を暴け。
-                </p>
+                <h1 id="case-title">Loading...</h1>
+                <p id="case-outline">---</p>
             </header>
+
             <div class="content">
-                <h2 class="section-title">列車内マップ</h2>
-                <img src="image/map.png" alt="リトルエンジン号 マップ" class="train-map">
+                <h2 class="section-title">乗客・乗務員名簿</h2>
+                <div id="character-list">
+                    </div>
 
-                <h2 class="section-title">追加の手がかり (時間経過で解禁)</h2>
-                <div id="time-clue-container"></div>
-                <div id="time-clue-display"></div>
-
-                <h2 class="section-title">容疑者・関係者リスト</h2>
-                <div id="character-list"></div>
-
-                <h2 class="section-title">収集した証拠・タイムライン</h2>
+                <h2 class="section-title">収集した証拠・証言</h2>
                 <div id="evidence-list">
-                    <p style="color:#888; font-size:0.85rem; padding:15px; text-align:center;">
-                        (尋問を通じて情報を得ると、ここに記録されます)
-                    </p>
+                    <p style="color:#666; font-size:0.9rem; padding:10px;">(まだ決定的な証拠はありません)</p>
                 </div>
+
+                </div>
+
+            <div style="padding: 20px; text-align: center; color: #444; font-size: 0.8rem; border-top: 1px solid #222; margin-top: 20px;">
+                <p>大陸横断鉄道「リトルエンジン号」客車内</p>
             </div>
         </div>
 
         <div id="interrogation-room" style="display:none;">
             <header id="room-header">
                 <button id="back-btn">← 戻る</button>
-                <span id="target-name">名前未設定</span>
-                <div style="width: 40px;"></div>
-            </header>
-            <div id="chat-log"></div>
+                <span id="target-name">Unknown</span>
+                <div style="width: 60px;"></div> </header>
+
+            <div id="chat-log">
+                </div>
+
             <div id="input-area">
-                <input type="text" id="chat-input" placeholder="何を問い詰め、聞き出しますか？">
-                <button id="send-btn">送信</button>
+                <input type="text" id="chat-input" placeholder="容疑者に問い詰める内容を入力...">
+                <button id="send-btn">➤</button>
             </div>
         </div>
+
+        <div id="error-log"
+            style="display:none; margin:10px; padding:10px; background:#2c1010; border:1px solid #c62828; color:#ef9a9a; font-size:0.8rem; white-space:pre-wrap; border-radius:4px;">
+        </div>
     </div>
+
     <script type="module" src="game.js"></script>
 </body>
+
 </html>
