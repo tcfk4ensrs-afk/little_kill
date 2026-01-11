@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div id="app">
         <div id="main-menu">
             <header>
@@ -16,20 +15,16 @@
                     バーテンダーが消え、農民が死体となって現れた。この列車の嘘を暴け。
                 </p>
             </header>
-
             <div class="content">
                 <h2 class="section-title">列車内マップ</h2>
                 <img src="map.png" alt="リトルエンジン号 マップ" class="train-map">
 
                 <h2 class="section-title">追加の手がかり (時間経過で解禁)</h2>
-                <div id="time-clue-container">
-                    </div>
-                <div id="time-clue-display">
-                    </div>
+                <div id="time-clue-container"></div>
+                <div id="time-clue-display"></div>
 
                 <h2 class="section-title">容疑者・関係者リスト</h2>
-                <div id="character-list">
-                    </div>
+                <div id="character-list"></div>
 
                 <h2 class="section-title">収集した証拠・タイムライン</h2>
                 <div id="evidence-list">
@@ -37,28 +32,22 @@
                         (尋問を通じて情報を得ると、ここに記録されます)
                     </p>
                 </div>
-                
-                </div>
+            </div>
         </div>
 
         <div id="interrogation-room" style="display:none;">
             <header id="room-header">
                 <button id="back-btn">← 戻る</button>
                 <span id="target-name">名前未設定</span>
-                <div style="width: 40px;"></div> </header>
-
-            <div id="chat-log">
-                </div>
-
+                <div style="width: 40px;"></div>
+            </header>
+            <div id="chat-log"></div>
             <div id="input-area">
                 <input type="text" id="chat-input" placeholder="何を問い詰め、聞き出しますか？">
                 <button id="send-btn">送信</button>
             </div>
         </div>
-
-        <div id="error-log" style="display:none;"></div>
     </div>
-
     <script type="module" src="game.js"></script>
 </body>
 </html>
