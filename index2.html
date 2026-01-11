@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>捜査開始 - リトルエンジン号の最後</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --bg-color: #1a120b;
+            --accent-color: #d4a373;
+            --text-color: #fefae0;
+            --card-bg: #2c1e12;
+            --chat-ai-bg: #3d2b1a;
+            --chat-user-bg: #5c4033;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Georgia', 'serif', 'Hiragino Mincho ProN', 'MS P明朝';
+        }
+
+        #app {
+            border: 2px solid var(--accent-color);
+            background-image: linear-gradient(rgba(44, 30, 18, 0.95), rgba(44, 30, 18, 0.95)),
+                              url('https://www.transparenttextures.com/patterns/dark-leather.png');
+        }
+
+        header {
+            background-color: #1a120b;
+            border-bottom: 2px solid var(--accent-color);
+            padding: 20px;
+        }
+
+        h1#case-title {
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+        }
+
+        .section-title {
+            color: var(--accent-color);
+            border-bottom: 1px solid var(--accent-color);
+            margin: 20px 0 10px 0;
+            font-size: 1rem;
+            text-transform: uppercase;
+        }
+
+        /* キャラクターリストのカスタマイズ（2行4列対応） */
+        #character-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* モバイル優先、PCはgame.js側で調整可 */
+            gap: 10px;
+            padding: 10px;
+        }
+
+        .character-card {
+            background-color: var(--card-bg);
+            border: 1px solid #432e1d;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .character-card:hover {
+            border-color: var(--accent-color);
+            background-color: #3d2b1a;
+        }
+
+        /* 尋問室のヘッダー */
+        #room-header {
+            background-color: #1a120b;
+            border-bottom: 2px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        /* チャットエリア */
+        #chat-log {
+            background: #1a120b;
+            padding: 20px;
+        }
+
+        .message.model {
+            background-color: var(--chat-ai-bg);
+            border: 1px solid var(--accent-color);
+            color: var(--text-color);
+        }
+
+        .message.user {
+            background-color: var(--chat-user-bg);
+            color: #fff;
+        }
+
+        /* 入力エリア */
+        #input-area {
+            background-color: #2c1e12;
+            border-top: 1px solid var(--accent-color);
+            padding: 15px;
+        }
+
+        #chat-input {
+            background: #1a120b;
+            border: 1px solid var(--accent-color);
+            color: var(--text-color);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        #send-btn {
+            background-color: var(--accent-color);
+            color: #1a120b;
+        }
+
+        /* 証拠リスト */
+        #evidence-list {
+            background: var(--card-bg);
+            border: 1px solid #432e1d;
+            border-radius: 5px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <div id="main-menu">
+            <header>
+                <h1 id="case-title">捜査本部：リトルエンジン号の最後</h1>
+                <p id="case-outline" style="font-size: 0.8rem; opacity: 0.7;">
+                    バーテンダーが消え、農民が死体となって現れた。この列車の嘘を暴け。
+                </p>
+            </header>
+
+            <div class="content">
+                <h2 class="section-title">容疑者・関係者リスト</h2>
+                <div id="character-list">
+                    </div>
+
+                <h2 class="section-title">収集した証拠・タイムライン</h2>
+                <div id="evidence-list">
+                    <p style="color:#888; font-size:0.85rem; padding:15px; text-align:center;">
+                        (尋問を通じて情報を得ると、ここに記録されます)
+                    </p>
+                </div>
+            </div>
+
+            </div>
+
+        <div id="interrogation-room" style="display:none;">
+            <header id="room-header">
+                <button id="back-btn" style="color: var(--accent-color);">← 戻る</button>
+                <span id="target-name">名前未設定</span>
+                <div style="width: 40px;"></div> </header>
+
+            <div id="chat-log">
+                </div>
+
+            <div id="input-area">
+                <input type="text" id="chat-input" placeholder="何を問い詰めますか？">
+                <button id="send-btn">送信</button>
+            </div>
+        </div>
+
+        <div id="error-log" style="display:none; color: red; background: white; padding: 10px;"></div>
+    </div>
+
+    <script type="module" src="game.js"></script>
+</body>
+</html>
