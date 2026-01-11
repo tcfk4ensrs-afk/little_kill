@@ -1,0 +1,64 @@
+{
+  "case": {
+    "title": "リトルエンジン号の最後",
+    "outline": "大陸横断鉄道の3日目。列車の支配者・バーテンダーが失踪した。混乱の中、殺されたはずの農民が血まみれの服で現れる。この密室列車の嘘を暴き、真犯人を特定せよ。",
+    "culprit": "マジシャン",
+    "truth": "犯人はマジシャン（セバスチャン）です。彼は幼少期に自分を売ったバーテンダーへの復讐のため、15:30にビジネスマンの部屋から盗んだ黄金の万年筆を使い、18:49にバーテンダーを刺殺しました。\n\n【入れ替わりの真相】\n18:35、農民（サイラス）が金庫を破る際の変装として、酔いつぶれたバーテンダーと服を交換しました。そのため、マジシャンが18:49に殺害したのは「農民の服を着たバーテンダー」でした。その後、ビジネスマンがクローゼットでその死体を発見し、農民だと思い込んで首を絞めましたが、その時には既に刺殺されていました。\n\n農民（サイラス）は後に自分の服を着たバーテンダーの死体を発見。証拠隠滅のために死体を窓から投げ捨てましたが、自分の大切な「麻布の服」だけは死体から剥ぎ取って着直しました。その結果、エンディングで「殺された（穴の開いた）はずの服を着た農民」が生きて現れるという奇妙な状況が発生したのです。"
+  },
+
+  "characters": [
+    "scenarios/characters/BM.json",
+    "scenarios/characters/CD.json",
+    "scenarios/characters/DC.json",
+    "scenarios/characters/Lo.json",
+    "scenarios/characters/MC.json",
+    "scenarios/characters/PS.json",
+    "scenarios/characters/TS.json",
+    "scenarios/characters/VN.json"
+  ],
+
+  "evidences": [
+    {
+      "id": "bloody_frock",
+      "name": "穴の開いた麻布の服",
+      "description": "農民(PS)が着ている服。胸のあたりに血とインクで汚れた鋭い穴が開いている。農民は生きているのに、なぜ服に穴があるのか？",
+      "unlock_condition": "start"
+    },
+    {
+      "id": "golden_pen",
+      "name": "黄金の万年筆",
+      "description": "農民(PS)のポケットから発見された、ビジネスマン(BM)所有の万年筆。先端が鋭く研がれており、血が付着している。",
+      "unlock_condition": "search_peasant"
+    },
+    {
+      "id": "black_rope",
+      "name": "ゴムキャップの付いたロープ",
+      "description": "喫煙車に残されていたロープ。両端が黒いゴムで覆われている。マジシャンがVNを縛る際に使用したものだ。",
+      "unlock_condition": "start"
+    },
+    {
+      "id": "pregnancy_test",
+      "name": "陽性の妊娠検査用紙",
+      "description": "テニススター(TS)が妊娠していることを示す結果。医者(DC)との不倫の証拠であり、バーテンダーが恐喝のネタにしていたもの。",
+      "unlock_condition": "talk_dc_secret"
+    },
+    {
+      "id": "medicine_bottle",
+      "name": "中絶薬の小瓶",
+      "description": "中身が空になった小瓶。医者から車掌、ビジネスマン、ヴァイオリニストへと、多くの人物の手に渡り歩いた不吉な薬。",
+      "unlock_condition": "investigate_medicine"
+    },
+    {
+      "id": "stolen_cash",
+      "name": "600ポンドの札束",
+      "description": "医者(DC)が持っている多額の現金。バーテンダーから恐喝し返して奪い取ったもの。",
+      "unlock_condition": "talk_dc_money"
+    },
+    {
+      "id": "broken_iron_pipe",
+      "name": "ひしゃげた鉄パイプ",
+      "description": "メンテナンスクローゼットの床に落ちていた配管用の部品。水道管の破裂はこの衝撃によるもののようだ。",
+      "unlock_condition": "search_closet"
+    }
+  ]
+}
